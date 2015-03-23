@@ -179,7 +179,7 @@
           <th>{{ trans('fi.product') }}</th>
           <th class="text-right" style="width:70px;">{{ trans('fi.quantity') }}</th>
           <th class="text-right" style="width:70px;">{{ trans('fi.price') }}</th>
-          @if ($quote->amount->formatted_total_tax != '')<th class="text-right" style="width:70px;">{{ trans('fi.tax_rate') }}</th>@endif
+          @if ($quote->amount->total_tax > 0)<th class="text-right" style="width:70px;">{{ trans('fi.tax_rate') }}</th>@endif
           <th class="text-right" style="width:80px;">{{ trans('fi.subtotal') }}</th>
         </tr>
       </thead>
@@ -192,29 +192,31 @@
           </td>
           <td class="text-right">{{ $item->formatted_quantity }}</td>
           <td class="text-right">{{ $item->formatted_price }}</td>
-          @if ($quote->amount->formatted_total_tax != '')<td class="text-right">@if ($item->taxRate) {{ $item->taxRate->formatted_percent }} @endif</td>@endif
+          @if ($quote->amount->total_tax > 0)<td class="text-right">@if ($item->taxRate) {{ $item->taxRate->formatted_percent }} @endif</td>@endif
           <td class="text-right">{{ $item->amount->formatted_subtotal }}</td>
         </tr>
         @endforeach
       </tbody>
       <tfoot>
       {{--*/ $colspan = 3 /*--}}
-      @if ($quote->amount->formatted_total_tax != '')
+      @if ($quote->amount->total_tax > 0)
         {{--*/ $colspan = 4 /*--}}
         <tr>
           <th colspan="{{ $colspan }}" class="border-top text-right text-normal">{{ trans('fi.subtotal') }}</th>
           <td class="border-top text-right">{{ $quote->amount->formatted_item_subtotal }}</td>
         </tr>
-        @foreach ($quote->taxRates as $quoteTaxRate)
+        @foreach ($quote->summarized_taxes as $tax)
         <tr>
-          <td colspan="{{ $colspan }}" class="text-right">{{ $quoteTaxRate->taxRate->name }} {{ $quoteTaxRate->taxRate->formatted_percent }}</td>
-          <td class="text-right">{{ $quoteTaxRate->formatted_tax_total }}</td>
+          <td colspan="{{ $colspan }}" class="text-right text-normal">{{{ mb_strtoupper($tax->name) }}} {{{ $tax->percent }}}</td>
+          <td class="text-right">{{{ $tax->total }}}</td>
         </tr>
         @endforeach
+        @if (count($quote->summarized_taxes) > 1)
         <tr>
           <th colspan="{{ $colspan }}" class="text-right text-normal">{{ trans('fi.total') }} {{ trans('fi.tax') }}</th>
           <td class="text-right">{{ $quote->amount->formatted_total_tax }}</td>
         </tr>
+        @endif
       @endif
         <tr>
           <th colspan="{{ $colspan }}" class="text-right">{{ trans('fi.total') }}</th>

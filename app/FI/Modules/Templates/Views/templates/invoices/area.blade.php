@@ -206,16 +206,18 @@
           <th colspan="{{ $colspan }}" class="border-top text-right text-normal">{{ trans('fi.subtotal') }}</th>
           <td class="border-top text-right">{{ $invoice->amount->formatted_item_subtotal }}</td>
         </tr>
-        @foreach ($invoice->taxRates as $invoiceTaxRate)
+        @foreach ($invoice->summarized_taxes as $tax)
         <tr>
-          <td colspan="{{ $colspan }}" class="text-right">{{ $invoiceTaxRate->taxRate->name }} {{ $invoiceTaxRate->taxRate->formatted_percent }}</td>
-          <td class="text-right">{{ $invoiceTaxRate->formatted_tax_total }}</td>
+          <td colspan="{{ $colspan }}" class="text-right text-normal">{{{ mb_strtoupper($tax->name) }}} {{{ $tax->percent }}}</td>
+          <td class="text-right">{{{ $tax->total }}}</td>
         </tr>
         @endforeach
+        @if (count($invoice->summarized_taxes) > 1)
         <tr>
           <th colspan="{{ $colspan }}" class="text-right text-normal">{{ trans('fi.total') }} {{ trans('fi.tax') }}</th>
           <td class="text-right">{{ $invoice->amount->formatted_total_tax }}</td>
         </tr>
+        @endif
       @endif
         <tr>
           <th colspan="{{ $colspan }}" class="text-right">{{ trans('fi.total') }}</th>
